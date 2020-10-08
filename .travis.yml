@@ -21,8 +21,7 @@ jobs:
     - find ./ -type d | xargs chmod 755
     - find ./ -name '*.php' | xargs chmod 644
     - zip -r $ZIP_FILENAME ./ -x "*.git*" -x "*.editorconfig*" -x "*.travis.yml*"
-      -x "*assets*" -x "composer.*" && mkdir $BUILD_DIR && mv $ZIP_FILENAME
-      $BUILD_DIR/
+      -x "*assets*" -x "composer.*" && mkdir $BUILD_DIR && mv $ZIP_FILENAME $BUILD_DIR/
     before_deploy:
     - mkdir -p $DIST_DIR_GITHUB && cp $BUILD_DIR/$ZIP_FILENAME $DIST_DIR_GITHUB/$GITHUB_RELEASE_FILENAME
 notifications:
@@ -32,8 +31,8 @@ notifications:
 deploy:
   provider: releases
   api_key:
-    secure: Tb1VDp+n/gHyEGI1agMF2Jdqlb4CjztF0MyY/Js4pan6opgiJ6BPuUd62FT8ast8poJDnqD3Lxab3b91Bwzk0zajm+/U1m7Il9hRoJQwshsNhF9uNzIGyW7gDMNy6OIuxphOYAhL9HgcXwHLjLQvmkxWBKGoWpc1Fwz9z8NjFvUFVhE/suA+g7PMkQQK9cb5jGOODrEfUVnxsKWG0VrT9AVo1vdBVVmAbnEhB2l9Qy0v9U0H4OqKMeYNQ0YnfPj8pRAz2xtaGZlPUpWfEGc/TR/paiSzxRJ5u+UIPoQDFOerCGxzlK1OpRGmxWzzXnrfp31gKOliKc5Cavc7YivBb4vcTTD8nGU36UzAR5i5LEkm1AaHhYJP4aLXPNGhn9z/PCtWwSyv/d8dttqNaVKrVS/XQSd/YWCagD3AGjajmtqNfKs5LLKUV9uaJsp2b7iolp2JScH3d3Tp/ouKOvmh8S5w9I2ggfavpS/OiRgE5qF/d8nczAd2EmU1TACEKdZZVtrmh7EKPR9+soxQCvNAc7LxBQrWT/367vtqYRzRrCmX4lLf7LTMVI8pPNQoCk8UlZHK0gRlMJAEa2HaFo6zV1mmXaAqU80IFrkwmFvn/fm+DitfkIrgJiejDqdfha0tN9WG2wWZ1L9Yem3OtCeNF2mutkYR4RHN7ZqY7m1kgU4=
+    secure: jV9asYo3b51MZpGuLVzXHARnHOR0H8c+sRBXme17tqOb/FThXel35ZGpUFL+y9YZcaS99Jt/sUxDoxSMXy0Z9dV2hJUltaTAQpw9j0cFSBIyXamzMX6+VlKW6R8kyuvnrHjB4JSZvi0zl1zVkHSFwYWT7Peo8xiqczC3OVNBZWlKpWVuShAiHKWaS5bZvuJks1ab918OhWIaH2a6jEZhEeHEnCKGdyg4hYKftbPP2tVMr2b2pqqFkX5mhnSM1VxBf3PznwgUjgAdVj9BBifA0vAw3WK4BCLD7yvILAMHJWf7DNfubsVQq7Bpe26H+LA+Ktkguo7MB9xxkzd+0f1roKkB963hYWb6+hcLrT+K4USCJ4NBgwwz/aANzqpw3VuD8IKoiEC2xEn6iRZWovsqJY5S7jEdjxv2BM05goJczvoXfgQBoKzptGXfdpGBtxV0BRQ8RpD6pSk+8di42W01twNxLyLulnZPE8H/+dilquW/GTxcBeU1+QF76GXTjwcWtUd5s18RUC6NfWEdijEiMlJwB7+lGnFwM8T1ZMwqUMRVKOYvqDbye37NlurCXbDoLqTHn3q93BGizW+VQor97b5L73yI9QZT9ZOMddpZtau80pVeujiI23v5vqoJzhwyQOgya9uB6KTTrsiDjZ39tMCTqXNjPSFI3pUoek7lelw=
   file: "$DIST_DIR_GITHUB/$GITHUB_RELEASE_FILENAME"
-  skip_cleanup: true
   on: 
     tags: true
+  skip_cleanup: 'true'
