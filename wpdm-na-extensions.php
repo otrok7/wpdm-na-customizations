@@ -20,7 +20,6 @@ class wpdm_na_extenstions {
         add_action('init', array($this, 'init_remove_editor_from_wpdm'),100);
         add_action('wpdm_meta_box', array($this, 'filter_meta_boxes_from_wpdm'), 100);
         /** Instead of paging, we add a link to the category page */
-        add_filter("template_include", array($this, 'wpdm_na_Templates'), 1);
         add_action( 'wpdmcategory_add_form_fields', array($this,'CategoryFields'), 11, 0 );
         add_action( 'wpdmcategory_edit_form_fields', array($this,'CategoryFieldsEdit'), 11, 1 );
         /** To access a file that is not stored in WPDM (eg, MeetingList PDFs that are generated)
@@ -217,12 +216,6 @@ class wpdm_na_extenstions {
             }
             $content .= '</div></div>';
         }
-        if (has_shortcode($inner,'wpdm_na_table')) {
-            $content .= $this->get_box_ready($col_knt, $first, $ncols, $row_class, $row_style, $col_class, $col_style );
-            $first = false;
-            $content .= do_shortcode($inner);
-            $content .= '</div></div>';
-        }
         if (!$first) {
             $content .= '</div>';
         }
@@ -242,13 +235,6 @@ class wpdm_na_extenstions {
             die('Settings Saved Successfully');
         }
         include("panel.php");
-    }
-    function wpdm_na_Templates($template){
-        $_template = basename($template);
-        if(is_tax('wpdmcategory') || is_post_type_archive('wpdmpro')){
-            $template = \WPDM\Template::locate("taxonomy-wpdmcategory.php", WPDM_TPL_FALLBACK, WPDM_TPL_FALLBACK);
-        }
-        return $template;
     }
     function CategoryFields($attr='') {
 ?>
