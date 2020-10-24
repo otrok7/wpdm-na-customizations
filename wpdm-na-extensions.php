@@ -26,6 +26,80 @@ class wpdm_na_extenstions {
          *  don't upload a file, and put a link in the extract.
          */
         add_filter('wpdm_after_prepare_package_data', array($this,'wpdm_download_link'),10,1);
+        /**
+         * Show only post that the use is allowed to edit.
+         */
+        add_filter('pre_get_posts', array($this,'posts_for_current_author'), 10,1);
+        /**
+         * Show only catagories that are in the tree whose root is the author's name.
+         */
+        add_filter('wp_terms_checklist_args', array($this,'author_categories'), 10, 2);
+        add_filter('get_terms', array($this,'author_terms'), 10, 2);
+        add_filter('taxonomy_parent_dropdown_args',array($this,'category_dropdown'), 10, 1);
+        /** 
+         * Users that are not yet registered at this site, but are known on the network
+         * automatically get the default user at this site.
+         */
+        add_action('wp_login', array($this,'check_user_on_site'), 10, 2);
+    }
+    function check_user_on_site( $user_login, $user ) {
+        if ( is_user_member_of_blog() ) {
+            return;
+        }
+        $blog_id = get_current_blog_id();
+        $user->for_site($blog_id);
+        $roles = $user->roles;
+        if (is_array($roles) && count($roles)>0) {
+            return;
+        }
+        $user_id = $user->get('ID');
+        add_user_to_blog( $blog_id, $user_id, get_blog_option( $blog_id, 'default_role', 'subscriber' ) );
+    }
+    private function get_user_category() {
+        if( current_user_can( 'edit_others_posts' ) ) {
+            return null;
+        }
+        $user = wp_get_current_user();
+        $cat_name = $user->user_login;
+        return get_term_by('slug', $cat_name, 'wpdmcategory');
+    }
+    function author_categories($args, $post_id) {
+        $term = $this->get_user_category();
+        if (!$term) return $args;
+        $args['descendants_and_self'] = $term->term_id;
+        return $args;
+    }
+    function category_dropdown($args) {
+        $term = $this->get_user_category();
+        if (!$term) return $args;
+        $args['child_of'] = $term->term_id;
+        return $args;
+    }
+    function author_terms($terms, $taxonomies) {
+        if (!is_array($taxonomies) || count($taxonomies)==0 || $taxonomies[0] != 'wpdmcategory') {
+            return $terms;
+        }
+        $term = $this->get_user_category();
+        if (!$term) return $terms;
+        $ids = get_term_children( $term->term_id,'wpdmcategory' );
+        $ret = array();
+        $ret[] = $term;
+        foreach ($ids as $id) {
+            $ret[] = get_term_by('id', $id, 'wpdmcategory');
+        }
+        return $ret;
+    }
+    function posts_for_current_author($query) {
+        global $pagenow;
+     
+        if( 'edit.php' != $pagenow || !$query->is_admin )
+            return $query;
+     
+        if( !current_user_can( 'edit_others_posts' ) ) {
+            global $user_ID;
+            $query->set('author', $user_ID );
+        }
+        return $query;
     }
     /** 
      *  To access a file that is not stored in WPDM (eg, MeetingList PDFs that are generated)
