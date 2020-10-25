@@ -33,9 +33,8 @@ class wpdm_na_extenstions {
         /**
          * Show only catagories that are in the tree whose root is the author's name.
          */
-        add_filter('wp_terms_checklist_args', array($this,'author_categories'), 10, 2);
+        //add_filter('wp_terms_checklist_args', array($this,'author_categories'), 10, 2);
         add_filter('get_terms', array($this,'author_terms'), 10, 2);
-        add_filter('taxonomy_parent_dropdown_args',array($this,'category_dropdown'), 10, 1);
         /** 
          * Users that are not yet registered at this site, but are known on the network
          * automatically get the default user at this site.
@@ -69,25 +68,21 @@ class wpdm_na_extenstions {
         $args['descendants_and_self'] = $term->term_id;
         return $args;
     }
-    function category_dropdown($args) {
-        $term = $this->get_user_category();
-        if (!$term) return $args;
-        $args['child_of'] = $term->term_id;
-        return $args;
-    }
     function author_terms($terms, $taxonomies) {
         if (!is_array($taxonomies) || count($taxonomies)==0 || $taxonomies[0] != 'wpdmcategory') {
             return $terms;
         }
         $term = $this->get_user_category();
         if (!$term) return $terms;
-        $ids = get_term_children( $term->term_id,'wpdmcategory' );
-        $ret = array();
-        $ret[] = $term;
-        foreach ($ids as $id) {
-            $ret[] = get_term_by('id', $id, 'wpdmcategory');
+        foreach ($terms as $key=>$data) {
+            $id = $data;
+            if ($data instanceof WP_Term) $id = $data->term_id;
+            if ($id == $term->term_id) continue;
+            $ans = get_ancestors($id, 'wpdmcategory', 'taxonomy');
+            if (is_array($ans) && in_array($term->term_id,$ans)) continue;
+            unset($terms[$key]);
         }
-        return $ret;
+        return $terms;
     }
     function posts_for_current_author($query) {
         global $pagenow;
