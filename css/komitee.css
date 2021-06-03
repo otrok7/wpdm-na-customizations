@@ -1,0 +1,11 @@
+#mitglieder ul {
+    list-style: none;
+    display:inline-block;
+    margin:0 0 5px;
+}
+#mitglieder ul li {
+    display: inline-block;
+}
+#mitglieder .remove-line {
+    display:inline-block;
+}
